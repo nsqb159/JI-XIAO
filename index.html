@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Untitled</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>绩效薪资计算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .input-field:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .result-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 4px solid #0ea5e9;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e2e8f0;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl mx-auto">
+        <!-- 标题区 -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-800 mb-2">绩效薪资计算器</h1>
+            <p class="text-slate-500 max-w-2xl mx-auto"> 内部工具 | 数据仅供参考 </p>
+
+            <p>如果你不会用请点击下面</p>
+            <p class="mt-1"> 请用企业微信进入 </p>
+            <p class="mt-1"><a href="https://doc.weixin.qq.com/doc/w3_AbIAzgalAPACNN3aYGMNuRfWRkOvm?scode=AI0A1QdFABAgOt9CNy" class="text-blue-500 hover:text-blue-700">点击查看教学</a></p>
+        </div>
+
+        <!-- 计算器卡片 -->
+        <div class="card bg-white rounded-xl p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 输入区 -->
+                <div>
+                    <h2 class="text-xl font-semibold text-slate-700 mb-4 flex items-center">
+                        <i class="fas fa-calculator text-blue-500 mr-2"></i> 输入数据
+                    </h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="days" class="block text-sm font-medium text-slate-700 mb-1">出勤天数</label>
+                            <div class="relative">
+                                <input type="number" id="days" placeholder="排班至绩效结算需要上多少天班？" min="1" 
+                                    class="input-field w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <div id="error-days" class="hidden text-xs text-red-500 mt-1">请输入有效的出勤天数（≥1）</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="orders" class="block text-sm font-medium text-slate-700 mb-1">总接单量</label>
+                            <input type="number" id="orders" placeholder="输入目前总接单量" min="0" 
+                                class="input-field w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="complaints" class="block text-sm font-medium text-slate-700 mb-1">反馈分数</label>
+                            <input type="number" id="complaints" placeholder="输入反馈分数" min="0" step="0.1" 
+                                class="input-field w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label for="nightShift" class="block text-sm font-medium text-slate-700 mb-1">夜班天数</label>
+                            <div class="relative">
+                                <input type="number" id="nightShift" placeholder="出勤中夜班天数为几天？" min="0" 
+                                    class="input-field w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <div id="error-night" class="hidden text-xs text-red-500 mt-1">夜班天数不能超过出勤天数</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="calculate()" 
+                        class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 flex items-center justify-center">
+                        <i class="fas fa-calculator mr-2"></i> 计算薪资
+                    </button>
+                </div>
+                
+                <!-- 结果预览区 -->
+                <div>
+                    <h2 class="text-xl font-semibold text-slate-700 mb-4 flex items-center">
+                        <i class="fas fa-chart-line text-blue-500 mr-2"></i> 计算结果
+                    </h2>
+                    
+                    <div id="result" class="bg-slate-50 rounded-lg p-5 h-full">
+                        <div class="text-center py-8 text-slate-400">
+                            <i class="fas fa-calculator text-3xl mb-2"></i>
+                            <p>输入数据后点击计算按钮</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 绩效标准说明 -->
+        <div class="card bg-white rounded-xl p-6 mb-8">
+            <h2 class="text-xl font-semibold text-slate-700 mb-4 flex items-center">
+                <i class="fas fa-info-circle text-blue-500 mr-2"></i> 绩效标准说明
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                    <div class="flex items-center mb-2">
+                        <span class="result-badge bg-blue-100 text-blue-800">A档</span>
+                        <span class="ml-auto font-medium text-blue-700">0.3元/单</span>
+                    </div>
+                    <p class="text-sm text-slate-600">日均≥500单且反馈率≤0.3‰</p>
+                </div>
+                
+                <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+                    <div class="flex items-center mb-2">
+                        <span class="result-badge bg-indigo-100 text-indigo-800">B档</span>
+                        <span class="ml-auto font-medium text-indigo-700">0.2元/单</span>
+                    </div>
+                    <p class="text-sm text-slate-600">日均≥500单且反馈率≤0.5‰</p>
+                </div>
+                
+                <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                    <div class="flex items-center mb-2">
+                        <span class="result-badge bg-purple-100 text-purple-800">C档</span>
+                        <span class="ml-auto font-medium text-purple-700">0.15元/单</span>
+                    </div>
+                    <p class="text-sm text-slate-600">日均≥400单且反馈率≤0.5‰</p>
+                </div>
+                
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                    <div class="flex items-center mb-2">
+                        <span class="result-badge bg-slate-200 text-slate-800">D档</span>
+                        <span class="ml-auto font-medium text-slate-700">0.1元/单</span>
+                    </div>
+                    <p class="text-sm text-slate-600">日均低400或者反馈0.5%</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 薪资构成说明 -->
+        <div class="card bg-white rounded-xl p-6">
+            <h2 class="text-xl font-semibold text-slate-700 mb-4 flex items-center">
+                <i class="fas fa-coins text-blue-500 mr-2"></i> 薪资构成说明
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-4 rounded-lg border border-slate-200">
+                    <div class="flex items-center mb-2">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <h3 class="ml-3 font-medium">基本工资</h3>
+                    </div>
+                    <p class="text-sm text-slate-600">¥2800/月</p>
+                </div>
+                
+                <div class="p-4 rounded-lg border border-slate-200">
+                    <div class="flex items-center mb-2">
+                        <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h3 class="ml-3 font-medium">绩效工资</h3>
+                    </div>
+                    <p class="text-sm text-slate-600">按接单量×绩效档位</p>
+                </div>
+                
+                <div class="p-4 rounded-lg border border-slate-200">
+                    <div class="flex items-center mb-2">
+                        <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        <h3 class="ml-3 font-medium">夜班补助</h3>
+                    </div>
+                    <p class="text-sm text-slate-600">¥50/天</p>
+                </div>
+            </div>
+            
+            <div class="mt-6 p-4 rounded-lg bg-amber-50 border border-amber-200">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 pt-1">
+                        <i class="fas fa-exclamation-circle text-amber-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-amber-800">扣除项说明</h3>
+                        <p class="text-sm text-amber-700 mt-1">社保460元 + 公积金168元 = 合计扣除¥628元</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 页脚 -->
+        <div class="mt-12 text-center text-sm text-slate-500">
+            <p>如果你不会用请点击下面</p>
+            <p class="mt-1"> 请用企业微信进入 </p>
+            <p class="mt-1"><a href="https://doc.weixin.qq.com/doc/w3_AbIAzgalAPACNN3aYGMNuRfWRkOvm?scode=AI0A1QdFABAgOt9CNy" class="text-blue-500 hover:text-blue-700">点击查看教学</a></p>
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            // 清空所有错误提示
+            document.querySelectorAll('[id^="error-"]').forEach(el => el.classList.add('hidden'));
+            
+            // 获取输入值
+            const days = Number(document.getElementById('days').value) || 0;
+            const orders = Number(document.getElementById('orders').value) || 0;
+            const complaints = Number(document.getElementById('complaints').value) || 0;
+            const nightShift = Number(document.getElementById('nightShift').value) || 0;
+
+            // 输入校验
+            let isValid = true;
+            if (days <= 0) {
+                document.getElementById('error-days').classList.remove('hidden');
+                isValid = false;
+            }
+            if (nightShift > days) {
+                document.getElementById('error-night').classList.remove('hidden');
+                isValid = false;
+            }
+            if (!isValid) return;
+
+            // 核心计算
+            const dailyOrders = days > 0 ? (orders / days).toFixed(2) : '0.00';
+            const complaintRate = orders > 0 ? ((complaints / orders) * 1000).toFixed(3) : '0.000';
+            let rate = 0, level = 'D档', levelColor = 'bg-slate-200 text-slate-800';
+
+            // 严格判定绩效档位（按规则执行）
+            if (dailyOrders >= 500 && complaintRate <= 0.3) {
+                rate = 0.3; level = 'A档'; levelColor = 'bg-blue-100 text-blue-800';
+            } else if (dailyOrders >= 500 && complaintRate <= 0.5) {
+                rate = 0.2; level = 'B档'; levelColor = 'bg-indigo-100 text-indigo-800';
+            } else if (dailyOrders >= 400 && complaintRate <= 0.5) {
+                rate = 0.15; level = 'C档'; levelColor = 'bg-purple-100 text-purple-800';
+            } else {
+                rate = 0.1; level = 'D档'; levelColor = 'bg-slate-200 text-slate-800';
+            }
+
+            // 计算薪资明细
+            const base = 2800;
+            const performance = (orders * rate).toFixed(2);
+            const nightBonus = nightShift * 50;
+            const social = 460 + 168; // 社保公积金合计628元
+            const netSalary = (base + Number(performance) + nightBonus - social).toFixed(2);
+
+            // 生成A档差距提示
+            let aDiffHtml = '';
+            if (level !== 'A档') {
+                const needDaily = 500;
+                const needTotalOrders = needDaily * days;
+                const lackOrders = Math.max(0, Math.ceil(needTotalOrders - orders));
+                const maxComplaints = (orders * 0.3) / 1000;
+                const needReduceComplaints = Math.max(0, complaints - maxComplaints).toFixed(2);
+                
+                // 计算进度条百分比
+                const progressPercent = Math.min(100, (orders / needTotalOrders) * 100);
+                
+                aDiffHtml = `
+                    <div class="mt-6 pt-6 border-t border-slate-200">
+                        <h3 class="text-sm font-medium text-slate-700 mb-3">提升建议：如何达到A档绩效</h3>
+                        
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>接单量进度</span>
+                                <span>${Math.floor(progressPercent)}%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-3 bg-slate-50 rounded-lg">
+                                <p class="text-xs text-slate-500 mb-1">还需接单</p>
+                                <p class="font-medium text-blue-600">${lackOrders}单</p>
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-lg">
+                                <p class="text-xs text-slate-500 mb-1">或减少反馈</p>
+                                <p class="font-medium text-blue-600">${needReduceComplaints}次</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3 text-xs text-slate-500">
+                            <i class="fas fa-lightbulb mr-1 text-amber-500"></i> A档提成0.3元/单，当前${level}提成${rate}元/单
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 更新结果区域
+            const resultDom = document.getElementById('result');
+            resultDom.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center pb-4 border-b border-slate-200">
+                        <h3 class="font-medium text-slate-700">绩效分析</h3>
+                        <span class="result-badge ${levelColor}">${level}</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-slate-500 mb-1">日均接单量</p>
+                            <p class="font-medium">${dailyOrders} <span class="text-sm text-slate-500">单/天</span></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-slate-500 mb-1">反馈率</p>
+                            <p class="font-medium">${complaintRate} <span class="text-sm text-slate-500">‰</span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="highlight-box p-4 rounded-lg mt-4">
+                        <p class="text-sm text-slate-500 mb-1">实发工资</p>
+                        <p class="text-2xl font-bold text-blue-600">¥${netSalary}</p>
+                        <p class="text-xs text-slate-500 mt-1">已扣除社保公积金¥628</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs mt-4">
+                        <div class="p-2 bg-slate-50 rounded">
+                            <p class="text-slate-500">基本工资</p>
+                            <p class="font-medium">¥2800</p>
+                        </div>
+                        <div class="p-2 bg-slate-50 rounded">
+                            <p class="text-slate-500">绩效工资</p>
+                            <p class="font-medium">¥${performance}</p>
+                        </div>
+                        <div class="p-2 bg-slate-50 rounded">
+                            <p class="text-slate-500">夜班补助</p>
+                            <p class="font-medium">¥${nightBonus}</p>
+                        </div>
+                    </div>
+                    
+                    ${aDiffHtml}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
+<!-- partial -->
+  
+</body>
+</html>
